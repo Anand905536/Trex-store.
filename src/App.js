@@ -1,25 +1,147 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import Data from "./components/Data";
+import Navbar from "./components/Navbar";
+import Cart from "./components/Cart";
+import { Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
 
-function App() {
+export default function App() {
+  const [data, setData] = useState([]);
+  const [timeoutId, settimeoutId] = useState(null);
+  const [cartarray, setCartarray] = useState([]);
+  const [refresh, setRefresh] = useState(1);
+  const [quantityArray, setQuantityArray] = useState(
+    Array(cartarray.length).fill(1)
+  );
+
+  const apidata = () => {
+    fetch(
+      `https://geektrust.s3.ap-southeast-1.amazonaws.com/coding-problems/shopping-cart/catalogue.json`
+    )
+      .then((res) => res.json())
+      .then((res) => setData(res))
+      // .then((res)=>console.log(res))
+      .then((err) => console.error(err));
+  };
+  useEffect(() => {
+    apidata();
+  }, [refresh]);
+
+  // refresh
+  const refreshsetter = () => {
+    setRefresh((refresh) => refresh + 1);
+  };
+
+  // filter on search after limiting the rate of callig by 400ms
+  const changeHandler = (e) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    const newtimeoutId = setTimeout(() => {
+      console.log("running");
+      const query = e.target.value;
+      let updatedList = [...data];
+      updatedList = updatedList.filter((ele) => {
+        return ele.name.toLowerCase().includes(query.toLowerCase());
+      });
+      console.log(updatedList);
+      setData(updatedList);
+    }, 400);
+    settimeoutId(newtimeoutId);
+  };
+
+  // filter on basis of color
+  const colorfilter = (e) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    const newtimeoutId = setTimeout(() => {
+      let filteredArray = [...data];
+      filteredArray = filteredArray.filter((ele) => {
+        return ele.color.toLowerCase().includes(e.toLowerCase());
+      });
+      setData(filteredArray);
+    }, 400);
+    settimeoutId(newtimeoutId);
+  };
+
+  // filter on the basis of gender
+  const genderfilter = (e) => {
+    if (timeoutId) clearInterval(timeoutId);
+    const newtimeoutId = setTimeout(() => {
+      let filteredArray = [...data];
+      filteredArray = filteredArray.filter((ele) => {
+        return ele.gender.toLowerCase() === e.toLowerCase();
+      });
+      setData(filteredArray);
+    }, 400);
+    settimeoutId(newtimeoutId);
+  };
+
+  // filter on the basis of price range
+  const pricefilter = (e) => {
+    if (timeoutId) clearInterval(timeoutId);
+    const newtimeoutId = setInterval(() => {
+      let filteredArray = [...data];
+      filteredArray = filteredArray.filter((ele) => {
+        if (e === 250) {
+          return ele.price > 0 && ele.price <= 250;
+        } else if (e === 450) {
+          return ele.price > 250 && ele.price <= 450;
+        } else {
+          return ele.price > 450;
+        }
+      });
+      setData(filteredArray);
+    }, 400);
+    settimeoutId(newtimeoutId);
+  };
+
+  // filter on the basis of type
+  const typefilter = (e) => {
+    if (timeoutId) clearInterval(timeoutId);
+    const newtimeoutId = setTimeout(() => {
+      let filteredArray = [...data];
+      filteredArray = filteredArray.filter((ele) => {
+        return ele.type.toLowerCase().includes(e.toLowerCase());
+      });
+      setData(filteredArray);
+    }, 400);
+    settimeoutId(newtimeoutId);
+  };
+
+  // button handler on click
+  const productAdded = (cartitem) => {
+    // using spread operator for storing previous values
+    setCartarray((prevData) => [...prevData, cartitem]);
+    // console.log(cartarray);
+  };
+
+  // quantity decrease
+  const deleteitem = (id) => {
+    setCartarray(cartarray.filter((item) => item.id !== id));
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar length={cartarray.length} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Data
+              data={data}
+              changeHandler={changeHandler}
+              colorfilter={colorfilter}
+              genderfilter={genderfilter}
+              pricefilter={pricefilter}
+              typefilter={typefilter}
+              productAdded={productAdded}
+              refreshsetter={refreshsetter}
+            />
+          }
+        />
+        <Route
+          path="/Cart"
+          element={<Cart cartarray={cartarray} deleteitem={deleteitem} />}
+        />
+      </Routes>
     </div>
   );
 }
-
-export default App;
