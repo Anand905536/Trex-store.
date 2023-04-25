@@ -10,9 +10,8 @@ export default function App() {
   const [timeoutId, settimeoutId] = useState(null);
   const [cartarray, setCartarray] = useState([]);
   const [refresh, setRefresh] = useState(1);
-  const [quantityArray, setQuantityArray] = useState(
-    Array(cartarray.length).fill(1)
-  );
+  const[disablebutton,setDisablebutton]=useState(Array(30).fill(true))
+
 
   const apidata = () => {
     fetch(
@@ -26,6 +25,7 @@ export default function App() {
   useEffect(() => {
     apidata();
   }, [refresh]);
+
 
   // refresh
   const refreshsetter = () => {
@@ -106,17 +106,28 @@ export default function App() {
     settimeoutId(newtimeoutId);
   };
 
+
+
   // button handler on click
-  const productAdded = (cartitem) => {
-    // using spread operator for storing previous values
-    setCartarray((prevData) => [...prevData, cartitem]);
-    // console.log(cartarray);
+  const productAdded = (cartitem,idx) => {
+// if true then only button will active
+    if(disablebutton[idx]){
+      // using spread operator for storing previous values
+      setCartarray((prevData) => [...prevData, cartitem]);
+      disablebutton[idx]=false;
+    }
   };
 
+
   // quantity decrease
-  const deleteitem = (id) => {
-    setCartarray(cartarray.filter((item) => item.id !== id));
+  const deleteitem = (idx) => {
+    // again false to true when deleting that item from cart
+    disablebutton[idx-1]=true;
+    setDisablebutton(disablebutton)
+    setCartarray(cartarray.filter((item) => item.id !== idx));
   };
+
+  
 
   return (
     <div className="App">
@@ -134,12 +145,18 @@ export default function App() {
               typefilter={typefilter}
               productAdded={productAdded}
               refreshsetter={refreshsetter}
+              disablebutton={disablebutton}
             />
           }
         />
         <Route
           path="/Cart"
-          element={<Cart cartarray={cartarray} deleteitem={deleteitem} />}
+          element={<Cart 
+            cartarray={cartarray} 
+            deleteitem={deleteitem} 
+            disablebutton={disablebutton}
+            />
+          }
         />
       </Routes>
     </div>
