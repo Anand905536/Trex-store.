@@ -3,7 +3,6 @@ import "./data.css";
 import { FcSearch } from "react-icons/fc";
 import { Input } from "@mantine/core";
 import { HiRefresh } from "react-icons/hi";
-import { useState } from "react";
 
 const Data = ({
   data,
@@ -13,10 +12,14 @@ const Data = ({
   pricefilter,
   typefilter,
   productAdded,
-  refreshsetter
+  refreshsetter,
+  disablebutton
 }) => {
+
+
+  // console.log(disablebutton)
   return (
-    <div class="main_container">
+    <div className="main_container">
       {/* left side */}
 
       <div className="first_container">
@@ -124,21 +127,40 @@ const Data = ({
                       <p>{item.name}</p>
                       <p style={{ color: "#20b2aa	" }}>{`Rs ${item.price}`}</p>
                     </div>
-
-                    <Button
-                      className="button"
-                      variant="contained"
-                      color="primary"
-                      style={{
-                        fontWeight: "bold",
-                        color: "white",
-                        background: "#708090",
-                        marginLeft:"23px"
-                      }}
-                      onClick={() => productAdded(item)}
-                    >
-                      Add to cart
-                    </Button>
+                    {
+                      disablebutton[idx] ? <Button
+                        className="button"
+                        variant="contained"
+                        color="primary"
+                        style={{
+                          fontWeight: "bold",
+                          color: "white",
+                          background: "#708090",
+                          marginLeft: "23px"
+                        }}
+                        onClick={() => productAdded(item, idx)}
+                      >
+                        Add to cart
+                      </Button>
+                      
+                      :
+                      
+                      <Button
+                        className="button"
+                        variant="contained"
+                        color="primary"
+                        style={{
+                          fontWeight: "bold",
+                          color: "white",
+                          background: "#708090",
+                          marginLeft: "23px",
+                          opacity: ".5"
+                        }}
+                        onClick={() => productAdded(item, idx)}
+                      >
+                        Added
+                      </Button>
+                    }
                   </div>
                 );
               })}
