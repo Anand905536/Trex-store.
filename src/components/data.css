@@ -130,6 +130,10 @@
   .button {
     width: 80%;
     opacity: 1;
+    background-color: #01010a;
+  }
+  .buttonchange{
+   width: 80%;
   }
   .hr_inside_rightside {
     /* height: 100; */
